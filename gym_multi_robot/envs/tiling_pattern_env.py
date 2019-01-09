@@ -1,8 +1,5 @@
-from enum import Enum
-
 import gym
 import numpy as np
-import operator
 from gym.utils import seeding
 
 from gym_multi_robot.envs.tiling_pattern_view_2d import TilingPatternView2D
@@ -48,7 +45,7 @@ class TilingPatternEnv(gym.Env):
         return observation, reward, done, info
 
     def reset(self):
-        self.game_view.reset_robot()
+        self.game_view.reset_robots()
         self.state = np.zeros(2)
         self.steps_beyond_done = None
         self.done = False

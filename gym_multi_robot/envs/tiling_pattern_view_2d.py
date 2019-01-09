@@ -41,17 +41,8 @@ class TilingPatternView2D:
 
         self.__draw_tiles()
 
-        # # show the portals
-        # self.__draw_portals()
-        #
-        # # show the robot
-        # self.__draw_robots()
-        #
-        # # show the entrance
-        # self.__draw_entrance()
-        #
-        # # show the goal
-        # self.__draw_goal()
+        # show the robot
+        self.__draw_robots()
 
     def update(self, mode="human"):
         try:
@@ -85,17 +76,19 @@ class TilingPatternView2D:
             # move the robot
             self.__robots += np.array(self.__game.COMPASS[dir])
             # if it's in a portal afterward
-            if self.maze.is_portal(self.robot):
-                self.__robots = np.array(self.maze.get_portal(tuple(self.robot)).teleport(tuple(self.robot)))
+            if self.game.is_portal(self.robot):
+                self.__robots = np.array(self.game.get_portal(tuple(self.robot)).teleport(tuple(self.robot)))
             self.__draw_robot(transparency=255)
 
-    def reset_robot(self):
+    def reset_robots(self):
 
+        # TODO: implement
         self.__draw_robots(transparency=0)
         self.__robots = np.zeros(2, dtype=int)
         self.__draw_robots(transparency=255)
 
     def __controller_update(self):
+        # TODO, implement
         if not self.__game_over:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -139,57 +132,19 @@ class TilingPatternView2D:
                 if self.__game.grid[i][j]:
                     self.__colour_cell((i, j), colour=colour, transparency=transparency)
 
-    def __cover_walls(self, x, y, dirs, colour=(0, 0, 255, 15)):
+    def __draw_robots(self, colour=(150, 0, 0), object_colour=(0, 0, 150), transparency=255):
 
-        dx = x * self.CELL_W
-        dy = y * self.CELL_H
+        for robot in self.__game.robots:
+            x = int(robot.location[0] * self.CELL_W + self.CELL_W * 0.5 + 0.5)
+            y = int(robot.location[1] * self.CELL_H + self.CELL_H * 0.5 + 0.5)
+            r = int(min(self.CELL_W, self.CELL_H) / 2)
 
-        if not isinstance(dirs, str):
-            raise TypeError("dirs must be a str.")
+            pygame.draw.circle(self.maze_layer, colour + (transparency,), (x, y), r)
 
-        for dir in dirs:
-            if dir == "S":
-                line_head = (dx + 1, dy + self.CELL_H)
-                line_tail = (dx + self.CELL_W - 1, dy + self.CELL_H)
-            elif dir == "N":
-                line_head = (dx + 1, dy)
-                line_tail = (dx + self.CELL_W - 1, dy)
-            elif dir == "W":
-                line_head = (dx, dy + 1)
-                line_tail = (dx, dy + self.CELL_H - 1)
-            elif dir == "E":
-                line_head = (dx + self.CELL_W, dy + 1)
-                line_tail = (dx + self.CELL_W, dy + self.CELL_H - 1)
-            else:
-                raise ValueError("The only valid directions are (N, S, E, W).")
+            if robot.hold_object:
+                r_object = int(min(self.CELL_W, self.CELL_H) / 4 + 0.5)
+                pygame.draw.circle(self.maze_layer, object_colour + (transparency,), (x, y), r_object)
 
-            pygame.draw.line(self.maze_layer, colour, line_head, line_tail)
-
-    def __draw_robots(self, colour=(0, 0, 150), transparency=255):
-        pass
-        # x = int(self.__robots[0] * self.CELL_W + self.CELL_W * 0.5 + 0.5)
-        # y = int(self.__robots[1] * self.CELL_H + self.CELL_H * 0.5 + 0.5)
-        # r = int(min(self.CELL_W, self.CELL_H)/5 + 0.5)
-        #
-        # pygame.draw.circle(self.maze_layer, colour + (transparency,), (x, y), r)
-
-    def __draw_entrance(self, colour=(0, 0, 150), transparency=235):
-
-        self.__colour_cell(self.entrance, colour=colour, transparency=transparency)
-
-    def __draw_goal(self, colour=(150, 0, 0), transparency=235):
-
-        self.__colour_cell(self.goal, colour=colour, transparency=transparency)
-
-    def __draw_portals(self, transparency=160):
-
-        colour_range = np.linspace(0, 255, len(self.maze.portals), dtype=int)
-        colour_i = 0
-        for portal in self.maze.portals:
-            colour = ((100 - colour_range[colour_i])% 255, colour_range[colour_i], 0)
-            colour_i += 1
-            for location in portal.locations:
-                self.__colour_cell(location, colour=colour, transparency=transparency)
 
     def __colour_cell(self, cell, colour, transparency):
 
@@ -203,7 +158,7 @@ class TilingPatternView2D:
         pygame.draw.rect(self.maze_layer, colour + (transparency,), (x, y, w, h))
 
     @property
-    def maze(self):
+    def game(self):
         return self.__game
 
     @property

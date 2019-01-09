@@ -44,10 +44,11 @@ class GripperRobot:
     # This variable stores the locations of the robot relative to (0, 0)
     relative_locations = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]
 
-    def __init__(self, heading=Heading.NORTH, location=(0, 0)):
+    def __init__(self, identifier, heading=Heading.NORTH, location=(0, 0)):
         self.hold_object = False
         self.heading = heading
         self.location = location
+        self.identifier = identifier
 
     def pickup(self, grid):
         """This method picks up a object if it is not already holding one."""
@@ -144,16 +145,18 @@ class GripperRobot:
 class TilingPatternGame:
     """ This class represents a grid used for the tiling pattern problem."""
 
-    def __init__(self, grid_size, lattice_size):
+    def __init__(self, grid_size, lattice_size, num_robots = 5):
         self.grid_size = grid_size
         self.lattice_size = lattice_size
         self.grid = [[0 for _ in range(self.GRID_H)] for _ in range(self.GRID_W)]
         self.robots = []
         self.reset_grid()
 
+        for i in range(num_robots):
+            self.robots.append(GripperRobot(i, location=(0, i)))
+
     def reset_grid(self):
 
-        # Create the grid.
         for x in range(0, self.GRID_W, self.lattice_size):
             for y in range(0, self.GRID_H, self.lattice_size):
                 self.grid[x][y] = 1
