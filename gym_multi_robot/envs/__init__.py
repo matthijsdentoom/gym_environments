@@ -1,0 +1,1 @@
+from gym_multi_robot.envs.tiling_pattern_env import TilingPatternEnv
