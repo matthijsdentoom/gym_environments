@@ -20,6 +20,7 @@ class TilingPatternView2D:
         self.screen = None
         self.clock = None
         self.maze_layer = None
+        self.__screen_size = None
 
     def init_pygame(self, screen_size=(600, 600)):
         pygame.init()
@@ -28,6 +29,7 @@ class TilingPatternView2D:
 
         # to show the right and bottom border
         self.screen = pygame.display.set_mode(screen_size)
+        self.__screen_size = tuple(map(sum, zip(screen_size, (-1, -1))))
 
         # Create a background
         self.background = pygame.Surface(self.screen.get_size()).convert()
@@ -43,6 +45,9 @@ class TilingPatternView2D:
         self.__draw_robots()
 
     def update(self, mode="human"):
+        if self.screen is None:
+            self.init_pygame()
+
         try:
             img_output = self.__view_update(mode)
             self.__controller_update()
