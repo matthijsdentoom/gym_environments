@@ -27,6 +27,7 @@ class TilingPatternEnv(gym.Env):
         self.game_view.quit_game()
 
     def _seed(self, seed=None):
+        # TODO: Use this random seed.
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
@@ -36,20 +37,17 @@ class TilingPatternEnv(gym.Env):
     def _configure(self, display=None):
         self.display = display
 
-    def step(self, action):
-        observation = []
+    def step(self, actions):
+
+        observation = self.game_view.game.update_robots(actions)
         reward = 0
-        done = False
+        done = self.game_view.game_over
         info = dict()
 
         return observation, reward, done, info
 
     def reset(self):
-        self.game_view.reset_robots()
-        self.state = np.zeros(2)
-        self.steps_beyond_done = None
-        self.done = False
-        return self.state
+        return self.game_view.reset_game()
 
     def render(self, mode='human', close=False):
         if close:

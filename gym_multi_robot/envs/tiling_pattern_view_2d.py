@@ -1,6 +1,8 @@
 import pygame
 import numpy as np
+import operator
 
+from gym_multi_robot.envs.gripping_robot import Heading
 from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame
 
 
@@ -17,16 +19,9 @@ class TilingPatternView2D:
 
         self.__game = TilingPatternGame(grid_size=world_size, lattice_size=lattice_size)
 
-        self.maze_size = self.__game.grid_size
         # to show the right and bottom border
         self.screen = pygame.display.set_mode(screen_size)
         self.__screen_size = tuple(map(sum, zip(screen_size, (-1, -1))))
-
-        # Set the starting point
-        self.__entrance = np.zeros(2, dtype=int)
-
-        # Set the Goal
-        self.__goal = np.array(self.maze_size) - np.array((1, 1))
 
         # Create a background
         self.background = pygame.Surface(self.screen.get_size()).convert()
@@ -63,52 +58,32 @@ class TilingPatternView2D:
         except Exception:
             pass
 
-    def move_robot(self, dir):
-        if dir not in self.__game.COMPASS.keys():
-            raise ValueError("dir cannot be %s. The only valid dirs are %s."
-                             % (str(dir), str(self.__game.COMPASS.keys())))
-
-        if self.__game.is_open(self.__robots, dir):
-
-            # update the drawing
-            self.__draw_robot(transparency=0)
-
-            # move the robot
-            self.__robots += np.array(self.__game.COMPASS[dir])
-            # if it's in a portal afterward
-            if self.game.is_portal(self.robot):
-                self.__robots = np.array(self.game.get_portal(tuple(self.robot)).teleport(tuple(self.robot)))
-            self.__draw_robot(transparency=255)
-
-    def reset_robots(self):
-
-        # TODO: implement
-        self.__draw_robots(transparency=0)
-        self.__robots = np.zeros(2, dtype=int)
-        self.__draw_robots(transparency=255)
-
-    def __controller_update(self):
-        # TODO, implement
-        if not self.__game_over:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.__game_over = True
-                    self.quit_game()
+    def reset_game(self):
+        self.__game.reset_grid()
+        return self.__game.reset_robots()
 
     def __view_update(self, mode="human"):
         if not self.__game_over:
-            # update the robot's position
+            self.maze_layer.fill((0, 0, 0, 0,))
+            self.__draw_grid()
             self.__draw_tiles()
             self.__draw_robots()
 
             # update the screen
             self.screen.blit(self.background, (0, 0))
-            self.screen.blit(self.maze_layer,(0, 0))
+            self.screen.blit(self.maze_layer, (0, 0))
 
             if mode == "human":
                 pygame.display.flip()
 
             return np.flipud(np.rot90(pygame.surfarray.array3d(pygame.display.get_surface())))
+
+    def __controller_update(self):
+        if not self.__game_over:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.__game_over = True
+                    self.quit_game()
 
     def __draw_grid(self):
 
@@ -141,29 +116,28 @@ class TilingPatternView2D:
 
             pygame.draw.circle(self.maze_layer, colour + (transparency,), (x, y), r)
 
+            heading = Heading.heading_to_change(robot.heading)
+            scaled_heading = [r * x for x in heading]
+            pygame.draw.line(self.maze_layer, (0, 0, 0), (x, y), tuple(map(operator.add, scaled_heading, (x, y))))
+
             if robot.hold_object:
                 r_object = int(min(self.CELL_W, self.CELL_H) / 4 + 0.5)
                 pygame.draw.circle(self.maze_layer, object_colour + (transparency,), (x, y), r_object)
-
 
     def __colour_cell(self, cell, colour, transparency):
 
         if not (isinstance(cell, (list, tuple, np.ndarray)) and len(cell) == 2):
             raise TypeError("cell must a be a tuple, list, or numpy array of size 2")
 
-        x = int(cell[0] * self.CELL_W + 0.5 + 1)
-        y = int(cell[1] * self.CELL_H + 0.5 + 1)
-        w = int(self.CELL_W + 0.5 - 1)
-        h = int(self.CELL_H + 0.5 - 1)
+        x = int(cell[0] * self.CELL_W + 0.25 * self.CELL_W + 1)
+        y = int(cell[1] * self.CELL_H + 0.25 * self.CELL_H + 1)
+        w = int(self.CELL_W / 2 + 0.5 - 1)
+        h = int(self.CELL_H / 2 + 0.5 - 1)
         pygame.draw.rect(self.maze_layer, colour + (transparency,), (x, y, w, h))
 
     @property
     def game(self):
         return self.__game
-
-    @property
-    def robots(self):
-        return self.__robots
 
     @property
     def game_over(self):
