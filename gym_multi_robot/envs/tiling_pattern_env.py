@@ -1,5 +1,4 @@
 import gym
-import numpy as np
 from gym.utils import seeding
 
 from gym_multi_robot.envs.tiling_pattern_view_2d import TilingPatternView2D
@@ -14,7 +13,7 @@ class TilingPatternEnv(gym.Env):
 
         self.game_view = TilingPatternView2D(
             maze_name="OpenAI Gym - Tiling Pattern ({0} x {1} x {2})".format(x_dim, y_dim, lattice_size),
-            lattice_size=2, world_size=(x_dim, y_dim), screen_size=(640, 640))
+            lattice_size=2, world_size=(x_dim, y_dim))
 
         # Simulation related variables.
         self._seed(seed)
@@ -40,7 +39,8 @@ class TilingPatternEnv(gym.Env):
     def step(self, actions):
 
         observation = self.game_view.game.update_robots(actions)
-        reward = 0
+
+        reward = self.game_view.game.get_fitness()
         done = self.game_view.game_over
         info = dict()
 

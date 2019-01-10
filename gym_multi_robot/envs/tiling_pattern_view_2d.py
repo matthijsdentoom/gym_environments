@@ -9,19 +9,25 @@ from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame
 class TilingPatternView2D:
 
     def __init__(self, maze_name="TilingPattern2D", lattice_size=2,
-                 world_size=(30, 30), screen_size=(600, 600)):
+                 world_size=(30, 30)):
 
         # PyGame configurations
-        pygame.init()
-        pygame.display.set_caption(maze_name)
-        self.clock = pygame.time.Clock()
         self.__game_over = False
-
         self.__game = TilingPatternGame(grid_size=world_size, lattice_size=lattice_size)
+        self.maze_name = maze_name
+
+        self.background = None
+        self.screen = None
+        self.clock = None
+        self.maze_layer = None
+
+    def init_pygame(self, screen_size=(600, 600)):
+        pygame.init()
+        pygame.display.set_caption(self.maze_name)
+        self.clock = pygame.time.Clock()
 
         # to show the right and bottom border
         self.screen = pygame.display.set_mode(screen_size)
-        self.__screen_size = tuple(map(sum, zip(screen_size, (-1, -1))))
 
         # Create a background
         self.background = pygame.Surface(self.screen.get_size()).convert()
@@ -31,12 +37,9 @@ class TilingPatternView2D:
         self.maze_layer = pygame.Surface(self.screen.get_size()).convert_alpha()
         self.maze_layer.fill((0, 0, 0, 0,))
 
-        # show the maze
+        # show the maze things.
         self.__draw_grid()
-
         self.__draw_tiles()
-
-        # show the robot
         self.__draw_robots()
 
     def update(self, mode="human"):
@@ -60,6 +63,7 @@ class TilingPatternView2D:
 
     def reset_game(self):
         self.__game.reset_grid()
+
         return self.__game.reset_robots()
 
     def __view_update(self, mode="human"):
@@ -129,10 +133,10 @@ class TilingPatternView2D:
         if not (isinstance(cell, (list, tuple, np.ndarray)) and len(cell) == 2):
             raise TypeError("cell must a be a tuple, list, or numpy array of size 2")
 
-        x = int(cell[0] * self.CELL_W + 0.25 * self.CELL_W + 1)
-        y = int(cell[1] * self.CELL_H + 0.25 * self.CELL_H + 1)
-        w = int(self.CELL_W / 2 + 0.5 - 1)
-        h = int(self.CELL_H / 2 + 0.5 - 1)
+        x = int(cell[0] * self.CELL_W + 0.1 * self.CELL_W + 1)
+        y = int(cell[1] * self.CELL_H + 0.1 * self.CELL_H + 1)
+        w = int(self.CELL_W / 5 * 4 + 0.5 - 1)
+        h = int(self.CELL_H / 5 * 4 + 0.5 - 1)
         pygame.draw.rect(self.maze_layer, colour + (transparency,), (x, y, w, h))
 
     @property
@@ -144,16 +148,12 @@ class TilingPatternView2D:
         return self.__game_over
 
     @property
-    def SCREEN_SIZE(self):
-        return tuple(self.__screen_size)
-
-    @property
     def SCREEN_W(self):
-        return int(self.SCREEN_SIZE[0])
+        return int(self.__screen_size[0])
 
     @property
     def SCREEN_H(self):
-        return int(self.SCREEN_SIZE[1])
+        return int(self.__screen_size[1])
 
     @property
     def CELL_W(self):

@@ -37,6 +37,9 @@ class Observation:
         self.has_obstacle = False
         self.has_robot = False
 
+    def to_int_list(self):
+        return [int(self.has_tile), int(self.has_obstacle), int(self.has_robot)]
+
 
 class GripperRobot:
     """This class comprises a simple gripper robot."""
@@ -48,7 +51,6 @@ class GripperRobot:
         self.hold_object = False
         self.heading = heading
 
-        print(self.heading)
         self.location = location
         self.identifier = identifier
 
@@ -61,7 +63,6 @@ class GripperRobot:
         if not self.hold_object and game.has_tile(self.location):
             self.hold_object = True
             game.grid[self.location[0]][self.location[1]] = False
-            print(game.grid[self.location[0]][self.location[1]])
 
     def drop(self, game):
         """This method drops an object if it is holding any."""
@@ -82,16 +83,13 @@ class GripperRobot:
         if move_forward:
             change = Heading.heading_to_change(self.heading)
             new_location = tuple(map(operator.add, self.location, change))
-            print(str(self.location) + '->' + str(new_location))
 
             # Check whether the location is within the grid.
             if not game.inside_grid(new_location):
-                print("Grid")
                 return
 
             # Check whether the new location is free.
             if game.has_robot(new_location):    # TODO: maybe it is better to leave this out.
-                print("Robot")
                 return
 
             self.location = new_location
@@ -108,13 +106,18 @@ class GripperRobot:
         """
 
         # execute actions
-        if actions[2]:
+        if bool(round(actions[2])) and not actions[2] < 0:  # only pickup if positive integer.
             self.pickup(game)
 
-        if actions[3]:
+        if bool(round(actions[3])) and not actions[3] < 0:  # only drop if positive integer.
             self.drop(game)
 
-        self.move(actions[0], actions[1], game)
+        move_bool = bool(round(actions[0])) and not actions[0] < 0
+
+        actions[1] = int(round(actions[1]))
+        rotate = int(actions[1] > 0) - int(actions[1] < 0)
+
+        self.move(move_bool, rotate, game)
 
         # get observation
         return self.get_observation(game)
@@ -136,7 +139,12 @@ class GripperRobot:
 
             observations.append(observation)
 
-        return [self.hold_object, grid.has_tile(self.location), observations]
+        int_observation = [int(self.hold_object), int(grid.has_tile(self.location))]
+
+        for observation in observations:
+            int_observation += observation.to_int_list()
+
+        return int_observation
 
     def generate_observed_locations(self):
         """ This method generates the locations that this robot currently observes."""
