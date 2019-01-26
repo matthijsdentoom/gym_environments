@@ -1,4 +1,5 @@
 import operator
+from random import choice
 from enum import Enum
 
 
@@ -21,6 +22,10 @@ class Heading(Enum):
         if heading is Heading.WEST:
             return -1, 0
 
+    @staticmethod
+    def random_heading():
+        return choice(list(Heading))
+
 
 class Rotation(Enum):
     """ This enum indicates the rotation direction of the robot."""
@@ -38,14 +43,14 @@ class Observation:
         self.has_robot = False
 
     def to_int_list(self):
-        return [int(self.has_tile), int(self.has_obstacle), int(self.has_robot)]
+        return (int(self.has_tile), int(self.has_obstacle), int(self.has_robot))
 
 
 class GripperRobot:
     """This class comprises a simple gripper robot."""
 
     # This variable stores the locations of the robot relative to (0, 0)
-    relative_locations = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]
+    relative_locations = ((-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (1, 1), (0, 1), (-1, 1))
 
     def __init__(self, identifier, heading=Heading.NORTH, location=(0, 0)):
         self.hold_object = False
@@ -122,35 +127,30 @@ class GripperRobot:
         # get observation
         return self.get_observation(game)
 
-    def get_observation(self, grid):
+    def get_observation(self, game):
         """ This function generates an observation based on the current location of the robot."""
 
         locations = self.generate_observed_locations()
-        observations = []  # the observations.
+        observations = [int(self.hold_object), int(game.has_tile(self.location))]  # the observations.
 
         for location in locations:
-            observation = Observation()
+            observation = (int(not game.inside_grid(location)),     # Obstacle, for now only inside grid.
+                           int(game.has_tile(location)),            # Has tile
+                           int(game.has_robot(location)))           # Has robot.
+            observations.extend(observation)
 
-            if grid.inside_grid(location):
-                observation.has_tile = grid.has_tile(location)
-                observation.has_robot = grid.has_robot(location)
-            else:
-                observation.has_obstacle = True
-
-            observations.append(observation)
-
-        int_observation = [int(self.hold_object), int(grid.has_tile(self.location))]
-
-        for observation in observations:
-            int_observation += observation.to_int_list()
-
-        return int_observation
+        return observations
 
     def generate_observed_locations(self):
         """ This method generates the locations that this robot currently observes."""
         start_location = self.heading.value * 2
 
-        locations = [GripperRobot.relative_locations[(start_location + i) % len(GripperRobot.relative_locations)]
+        # Generate the relative locations
+        rel_locations = [GripperRobot.relative_locations[(start_location + i) % len(GripperRobot.relative_locations)]
                      for i in range(5)]
+
+        # Add current location to the set of sensor locations.
+        locations = [(location[0] + self.location[0], location[1] + self.location[1]) for location in rel_locations]
+
 
         return locations

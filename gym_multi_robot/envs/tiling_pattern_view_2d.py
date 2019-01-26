@@ -8,21 +8,14 @@ from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame
 
 class TilingPatternView2D:
 
-    def __init__(self, maze_name="TilingPattern2D", lattice_size=2,
-                 world_size=(30, 30)):
+    def __init__(self, game, maze_name="TilingPattern2D", screen_size=(600, 600)):
 
         # PyGame configurations
         self.__game_over = False
-        self.__game = TilingPatternGame(grid_size=world_size, lattice_size=lattice_size)
+        self.__game = game
         self.maze_name = maze_name
 
-        self.background = None
-        self.screen = None
-        self.clock = None
-        self.maze_layer = None
-        self.__screen_size = None
-
-    def init_pygame(self, screen_size=(600, 600)):
+        # Initialise pygame.
         pygame.init()
         pygame.display.set_caption(self.maze_name)
         self.clock = pygame.time.Clock()
@@ -45,8 +38,6 @@ class TilingPatternView2D:
         self.__draw_robots()
 
     def update(self, mode="human"):
-        if self.screen is None:
-            self.init_pygame()
 
         try:
             img_output = self.__view_update(mode)
@@ -65,11 +56,6 @@ class TilingPatternView2D:
             pygame.quit()
         except Exception:
             pass
-
-    def reset_game(self):
-        self.__game.reset_grid()
-
-        return self.__game.reset_robots()
 
     def __view_update(self, mode="human"):
         if not self.__game_over:
@@ -126,6 +112,8 @@ class TilingPatternView2D:
             pygame.draw.circle(self.maze_layer, colour + (transparency,), (x, y), r)
 
             heading = Heading.heading_to_change(robot.heading)
+
+            print(robot.heading)
             scaled_heading = [r * x for x in heading]
             pygame.draw.line(self.maze_layer, (0, 0, 0), (x, y), tuple(map(operator.add, scaled_heading, (x, y))))
 
@@ -171,7 +159,9 @@ class TilingPatternView2D:
 
 if __name__ == "__main__":
 
-    maze = TilingPatternView2D(screen_size= (500, 500), lattice_size=2, world_size=(10,10))
-    maze.update()
-    input("Enter any key to quit.")
+    maze = TilingPatternView2D(TilingPatternGame((7, 5), 2), maze_name="TilingPattern2D", screen_size=(600, 600))
 
+    maze.update()
+
+    print(maze.game.grid)
+    input("Enter any key to quit.")

@@ -4,6 +4,8 @@ Simple example using the tile structure creation task.
 
 from __future__ import print_function
 import os
+import time
+
 import neat
 import gym
 import gym_multi_robot
@@ -18,23 +20,28 @@ env = gym.make('tiling-pattern-v0')
 def eval_genomes(genomes, config):
     count = 0
     for genome_id, genome in genomes:
-        print(count)
         count += 1
         net = neat.nn.FeedForwardNetwork.create(genome, config)
+        start_time = time.time()
         genome.fitness = run_environment(net)
+        # sub rewards.
+        end_time = time.time()
+        avg_time = end_time - start_time
+
+        print("%d : avg_runtime: %s seconds ---" %(count, avg_time / num_trials))
 
 
 def run_environment(net):
     reward = 0
+
     for _ in range(num_trials):
         observation = env.reset()
 
-        sub_reward = 0
-
         for i in range(num_steps):
             output = [net.activate(observation[i]) for i in range(len(observation))]
-            observation, sub_reward, done, info = env.step(output)
+            observation, _, _, _ = env.step(output)
 
+        sub_reward = env.get_fitness()
         reward += sub_reward
 
     return reward / num_trials
