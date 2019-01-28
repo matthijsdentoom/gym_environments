@@ -62,8 +62,8 @@ def run(config_file):
     # Run for up to 300 generations.
     winner = p.run(eval_genomes, num_generations)
 
-    visualize.visualize_stats(stats)
-    output_winner(winner, config)
+    visualize.visualize_stats(stats, fitness_out_file='avg_fitness_static.svg', species_out_file='species_static.svg')
+    output_winner(winner, config, net_filename='nn_winner_static', genome_filename='winner_static')
 
 
 def output_winner(winner, config, net_filename='nn_winner', genome_filename='winner'):

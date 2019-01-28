@@ -199,6 +199,7 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
 
     return dot
 
+
 def visualize_stats(stats, fitness_out_file='avg_fitness.svg', species_out_file='species.svg'):
     """"This function visualizes the output files."""
     plot_stats(stats, ylog=False, view=False, filename=fitness_out_file)
