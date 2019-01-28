@@ -13,12 +13,10 @@ class TilingPatternGame:
         self.lattice_size = lattice_size
 
         self.grid = np.zeros((self.GRID_W, self.GRID_H), dtype=int)
-        self.num_tiles = int(math.ceil((self.GRID_W) / self.lattice_size) * math.ceil((self.GRID_H) / self.lattice_size))
+        self.num_tiles = int(math.ceil(self.GRID_W / self.lattice_size) * math.ceil(self.GRID_H / self.lattice_size))
 
         self.num_robots = num_robots
         self.robots = []
-
-        self.reset()
 
     def reset_grid(self):
 
@@ -70,7 +68,7 @@ class TilingPatternGame:
         for i in range(0, len(self.grid) - 1, self.lattice_size): # -1 to not take into account the last block.
             for j in range(0, len(self.grid[0]) - 1, self.lattice_size):
 
-                sub_grid = self.grid[i:i + self.lattice_size + 1][j:j + self.lattice_size + 1]
+                sub_grid = self.grid[i:i + self.lattice_size + 1, j:j + self.lattice_size + 1]
                 count = np.sum(np.sum(sub_grid))
                 p_js.append(count)
 
@@ -134,16 +132,16 @@ class StaticTilingPatternGame(TilingPatternGame):
     at the same locations every time.
     """
 
-    def __init__(self, grid_size, lattice_size, grid, robot_pos):
-        super().__init__(grid_size, lattice_size, len(robot_pos))
-        self.default_grid = grid
+    def __init__(self, grid, lattice_size, robot_pos):
+        super().__init__(grid.shape, lattice_size, len(robot_pos))
+        self.default_grid = np.copy(grid)
         self.default_robot_pos = robot_pos  # contains a position at index 0 and a heading at index 1
 
     def reset_grid(self):
-        self.grid = np.array(self.default_grid, copy=True)
+        self.grid = np.copy(self.default_grid)
 
     def reset_robots(self):
-        self.robots = [GripperRobot(i, self.default_robot_pos[0], self.default_robot_pos[1])
-                       for i in range(self.default_robot_pos)]
+        self.robots = [GripperRobot(i, self.default_robot_pos[i][1], self.default_robot_pos[i][0])
+                       for i in range(len(self.default_robot_pos))]
 
         return [robot.get_observation(self) for robot in self.robots]
