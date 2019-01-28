@@ -1,3 +1,4 @@
+import pickle
 import random
 import math
 import numpy as np
@@ -113,6 +114,12 @@ class TilingPatternGame:
                 return True
 
         return False
+
+    def write_config(self, tile_file_name='tiles.npy', robot_file_name='robots.pickle'):
+        """ Writes the current configuration of robots and tiles to 2 different files."""
+        robot_pos = [(robot.location, robot.heading) for robot in self.robots]
+        pickle.dump(robot_pos, open(robot_file_name, 'wb'))
+        np.save(tile_file_name, self.grid)
 
     @property
     def GRID_W(self):

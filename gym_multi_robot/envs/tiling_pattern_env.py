@@ -1,8 +1,38 @@
+import os
+import pickle
+
 import gym
+import numpy as np
 from gym.utils import seeding
 
-from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame
+from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame, StaticTilingPatternGame
 from gym_multi_robot.envs.tiling_pattern_view_2d import TilingPatternView2D
+
+
+def create_static_environment(tiles_path, robots_path):
+    # Check tiles path.
+    if not os.path.exists(tiles_path):
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        rel_path = os.path.join(dir_path, "samples", tiles_path)
+        if os.path.exists(rel_path):
+            tiles_path = rel_path
+        else:
+            raise FileExistsError("Cannot find %s." % tiles_path)
+
+    # Check robots path.
+    if not os.path.exists(robots_path):
+        dir_path = os.path.dirname(os.path.abspath(__file__))
+        rel_path = os.path.join(dir_path, "samples", robots_path)
+        if os.path.exists(rel_path):
+            robots_path = rel_path
+        else:
+            raise FileExistsError("Cannot find %s." % robots_path)
+
+    tiles_array = np.load(tiles_path)
+    robots_tuple = pickle.load(open(robots_path, 'rb'))
+
+    # TODO: Make lattice size variable.
+    return StaticTilingPatternGame(tiles_array, 2, robots_tuple)
 
 
 class TilingPatternEnv(gym.Env):
@@ -15,9 +45,13 @@ class TilingPatternEnv(gym.Env):
     """
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, lattice_size=2, x_dim=7, y_dim=5, seed=None, num_robots=5):
+    def __init__(self, lattice_size=2, x_dim=7, y_dim=5, seed=None, num_robots=5, robots_path=None, tiles_path=None):
 
-        self.game = TilingPatternGame((x_dim, y_dim), lattice_size, num_robots)
+        if tiles_path is not None and robots_path is not None:
+            self.game = create_static_environment(tiles_path, robots_path)
+        else:
+            self.game = TilingPatternGame((x_dim, y_dim), lattice_size, num_robots)
+
         self.game_view = None
 
         # Simulation related variables.
