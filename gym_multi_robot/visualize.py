@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import copy
 import warnings
 
@@ -197,6 +195,78 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
 
     dot.render(filename, view=view)
 
+    return dot
+
+
+def draw_state_machine(config, genome, view=False, filename=None, node_names=None, show_disabled=True,
+                       node_colors=None, fmt='svg'):
+    """ Receives a genome and draws a state machine with arbitrary topology. """
+    # Attributes for network nodes.
+    if graphviz is None:
+        warnings.warn("This display is not available due to a missing optional dependency (graphviz)")
+        return
+
+    if filename is not None:
+        filename += '.gv'
+
+    if node_names is None:
+        node_names = {}
+
+    assert type(node_names) is dict
+
+    if node_colors is None:
+        node_colors = {}
+
+    assert type(node_colors) is dict
+
+    node_attrs = {
+        'shape': 'circle',
+        'fontsize': '9',
+        'height': '0.2',
+        'width': '0.2',
+        'style': 'filled',
+        'fillcolor': 'white'}
+
+    dot = graphviz.Digraph(format=fmt, node_attr=node_attrs)
+    dot.attr(compound='true')
+
+    for state in genome.states.values():
+        with dot.subgraph(name='cluster' + str(state.key)) as c:
+            c.attr(shape='circle')
+            c.attr(style='filled')
+            c.attr(color='lightgray')
+            c.attr(label='State ' + str(state.key))
+
+            # Draw inputs
+            for i in range(config.genome_config.num_inputs):
+                dot.node('I_' + str(i) + '_' + str(state.key), _attributes=node_attrs)
+
+            # Draw outputs
+            for j in range(config.genome_config.num_outputs):
+                dot.node('O_' + str(j) + '_' + str(state.key), _attributes=node_attrs)
+
+            # Draw the weights on the nodes.
+            for i in range(config.genome_config.num_inputs):
+                for j in range(config.genome_config.num_outputs):
+                    style = 'solid'
+                    color = 'green' if state.weights[j][i] > 0 else 'red'
+                    width = str(0.1 + abs(state.weights[j][i] / 5.0))
+                    c.edge('I_' + str(i) + '_' + str(state.key), 'O_' + str(j) + '_' + str(state.key),
+                           _attributes={'style': style, 'color': color, 'penwidth': width})
+
+    for cg in genome.transitions.values():
+        if cg.enabled or show_disabled:
+
+            begin, end = cg.key
+            a = 'cluster' + str(begin)
+            b = 'cluster' + str(end)
+            style = 'solid' if cg.enabled else 'dotted'
+            label = str(cg.conditions)
+            # TODO: add conditions.
+            dot.edge('I_0_' + str(end), 'I_0_' + str(begin), ltail=b, lhead=a,
+                     _attributes={'style': style, 'color': 'black', 'penwidth': '1', 'label': label})
+
+    dot.render(filename, view=view)
     return dot
 
 

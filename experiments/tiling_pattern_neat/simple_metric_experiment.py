@@ -8,9 +8,8 @@ import time
 
 import neat
 import gym
-import gym_multi_robot
-from experiments import visualize
-from experiments.genome_serializer import GenomeSerializer
+from gym_multi_robot import visualize
+from gym_multi_robot.genome_serializer import GenomeSerializer
 
 num_steps = 3000
 num_robots = 5
