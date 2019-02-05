@@ -25,3 +25,10 @@ class ForagingRobot(GripperRobot):
         observation = super().get_observation(game)             # Same observation as other robots.
         observation.append(game.on_target_area(self.location))  # Add whether robot is on target area.
         observation.extend(game.direction_to_target_area(self.location))
+        observation.extend(self.heading_to_observation())
+
+        return observation
+
+    def heading_to_observation(self):
+        """ Returns an observation for every heading."""
+        return [self.heading == heading for heading in Heading]
