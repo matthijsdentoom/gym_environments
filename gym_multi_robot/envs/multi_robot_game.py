@@ -23,6 +23,13 @@ class MultiRobotGame:
 
         return [self.robots[i].step(actions[i], self) for i in range(len(actions))]
 
+    def reset_grid(self):
+        self.grid = np.zeros((self.GRID_W, self.GRID_H), dtype=int)
+
+    def reset(self):
+        self.reset_grid()
+        return self.reset_robots()
+
     def reset_robots(self):
         """ The method creates new robots at random positions."""
 
@@ -76,10 +83,6 @@ class MultiRobotGame:
 
     def get_fitness(self):
         """ This function should return the fitness of the current game."""
-        pass
-
-    def reset(self):
-        """ This function should reset the current game. This can be randomly or static. """
         pass
 
     def write(self, storage_file):

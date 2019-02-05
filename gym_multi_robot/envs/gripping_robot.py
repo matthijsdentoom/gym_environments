@@ -34,18 +34,6 @@ class Rotation(Enum):
     COUNTERCLOCKWISE = -1
 
 
-class Observation:
-    """ This class represents an observation which is made by a robot."""
-
-    def __init__(self):
-        self.has_tile = False
-        self.has_obstacle = False
-        self.has_robot = False
-
-    def to_int_list(self):
-        return (int(self.has_tile), int(self.has_obstacle), int(self.has_robot))
-
-
 class GripperRobot:
     """This class comprises a simple gripper robot."""
 
@@ -151,6 +139,5 @@ class GripperRobot:
 
         # Add current location to the set of sensor locations.
         locations = [(location[0] + self.location[0], location[1] + self.location[1]) for location in rel_locations]
-
 
         return locations

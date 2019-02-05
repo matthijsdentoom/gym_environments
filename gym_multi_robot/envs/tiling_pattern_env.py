@@ -1,4 +1,5 @@
-from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame, StaticTilingPatternGame
+from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame, StaticTilingPatternGame, \
+    TilingPatternGameStorage
 from gym_multi_robot.envs.multi_robot_env import MultiRobotEnv
 
 
@@ -10,13 +11,13 @@ class TilingPatternEnv(MultiRobotEnv):
     The fitness returned by step is always 0, this is because the fitness is only important in the end.
     Then the fitness can be requested using env.get_fitness()
     """
-    metadata = {'render.modes': ['human']}
 
     def __init__(self, lattice_size=2, x_dim=7, y_dim=5, seed=None, num_robots=5, env_storage_path=None):
         super().__init__(seed)
 
         if env_storage_path is not None:
-            env_storage = self.create_static_environment(env_storage_path)
+            env_storage = self.get_static_storage(env_storage_path)
+            assert isinstance(env_storage, TilingPatternGameStorage)
             self.game = StaticTilingPatternGame(env_storage)
         else:
             self.game = TilingPatternGame((x_dim, y_dim), lattice_size, num_robots)

@@ -23,11 +23,6 @@ class TilingPatternGame(MultiRobotGame):
         for _ in range(self.num_tiles):
             self.randomly_drop_tile()
 
-    def reset(self):
-        """ This function resets the game and returns an initial observation from all robots."""
-        self.reset_grid()
-        return self.reset_robots()
-
     def get_fitness(self):
         """ This function gets the fitness the current tile construction.
             The grid is divided in grid blocks, which all need to have the same number of tiles on it in order to

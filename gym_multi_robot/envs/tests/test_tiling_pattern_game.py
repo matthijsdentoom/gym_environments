@@ -19,7 +19,7 @@ def static_correct_storage():
     return TilingPatternGameStorage(game)
 
 
-class TestGripperRobot(unittest.TestCase):
+class TestTilingPatternGame(unittest.TestCase):
 
     def test_one_by_one_field(self):
         game = TilingPatternGame((1, 1), 1, 0)

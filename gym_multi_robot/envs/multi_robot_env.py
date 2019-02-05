@@ -79,10 +79,10 @@ class MultiRobotEnv(gym.Env):
         pass
 
     @classmethod
-    def create_static_environment(cls, game_storage_path):
+    def get_static_storage(cls, game_storage_path):
 
         # Check the tile paths.
         game_storage_path = check_path(game_storage_path)
         game_storage = pickle.load(open(game_storage_path, 'rb'))
 
-        return cls(game_storage)
+        return game_storage
