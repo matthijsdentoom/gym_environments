@@ -63,6 +63,7 @@ class TestGripperRobot(unittest.TestCase):
     def test_pickup(self):
         robot = GripperRobot(10, Heading.WEST)
         game = TilingPatternGame((1, 1), 1, 0)
+        game.reset()
         self.assertTrue(game.grid[0][0])
         robot.pickup(game)
 
@@ -157,6 +158,7 @@ class TestGripperRobot(unittest.TestCase):
     def test_pickup_action(self):
         robot = GripperRobot(10, Heading.WEST)
         game = TilingPatternGame((1, 1), 1, 0)
+        game.reset()
         self.assertTrue(game.grid[0][0])
         robot.step([False, 0, True, False], game)
 

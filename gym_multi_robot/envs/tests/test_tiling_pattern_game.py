@@ -3,17 +3,20 @@ import unittest
 import numpy as np
 
 from gym_multi_robot.envs.gripping_robot import Heading
-from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame, StaticTilingPatternGame
+from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame, StaticTilingPatternGame, \
+    TilingPatternGameStorage
 
 
-def static_correct_grid():
+def static_correct_storage():
 
-    grid = np.zeros((7, 5), dtype=int)
+    game = TilingPatternGame((7, 5), 2, 0)
+
+    game.grid = np.zeros((7, 5), dtype=int)
     for i in range(0, 7, 2):
         for j in range(0, 5, 2):
-            grid[i][j] = 1
+            game.grid[i][j] = 1
 
-    return grid
+    return TilingPatternGameStorage(game)
 
 
 class TestGripperRobot(unittest.TestCase):
@@ -59,8 +62,8 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_tiling_pattern_fitness(self):
 
-        grid = static_correct_grid()
-        game = StaticTilingPatternGame(grid, 2, [])
+        storage = static_correct_storage()
+        game = StaticTilingPatternGame(storage)
         game.reset()
 
         self.assertEqual(12, game.num_tiles)
@@ -68,22 +71,23 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_static_pattern_reset(self):
 
-        grid = static_correct_grid()
-        game = StaticTilingPatternGame(grid, 2, [])
+        storage = static_correct_storage()
+        game = StaticTilingPatternGame(storage)
         game.reset()
 
-        grid[0][0] = 0
-        grid[0][3] = 1
+        game.grid[0][0] = 0
+        game.grid[0][3] = 1
 
-        self.assertLessEqual(99.5, game.get_fitness())
+        self.assertLessEqual(game.get_fitness(), 99.5)
         game.reset()
 
         self.assertEqual(12, game.num_tiles)
         self.assertAlmostEqual(100, game.get_fitness())
 
     def test_static_robot_reset(self):
-        grid = static_correct_grid()
-        game = StaticTilingPatternGame(grid, 2, [((0, 0), Heading.NORTH)])
+        storage = static_correct_storage()
+        storage.robot_pos = [((0, 0), Heading.NORTH)]
+        game = StaticTilingPatternGame(storage)
         game.reset()
         self.assertEqual((0, 0), game.robots[0].location)
 
@@ -98,8 +102,9 @@ class TestGripperRobot(unittest.TestCase):
         self.assertTrue(game.has_robot((0, 0)))
 
     def test_static_robots_reset(self):
-        grid = static_correct_grid()
-        game = StaticTilingPatternGame(grid, 2, [((0, 0), Heading.NORTH), ((3, 3), Heading.SOUTH)])
+        storage = static_correct_storage()
+        storage.robot_pos = [((0, 0), Heading.NORTH), ((3, 3), Heading.SOUTH)]
+        game = StaticTilingPatternGame(storage)
         game.reset()
         self.assertEqual((0, 0), game.robots[0].location)
         self.assertEqual((3, 3), game.robots[1].location)
