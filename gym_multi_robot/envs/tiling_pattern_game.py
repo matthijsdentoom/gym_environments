@@ -50,7 +50,7 @@ class TilingPatternGame(MultiRobotGame):
         # TODO: possibly count tiles that robot holds.
         return f
 
-    def write_config(self, storage_file='tiling_pattern_game.pickle'):
+    def write(self, storage_file='tiling_pattern_game.pickle'):
         """ Writes the current configuration of robots and tiles to 2 different files."""
         storage = TilingPatternGameStorage(self)
         pickle.dump(storage, open(storage_file, 'wb'))

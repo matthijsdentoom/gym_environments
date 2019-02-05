@@ -1,1 +1,2 @@
 from gym_multi_robot.envs.tiling_pattern_env import TilingPatternEnv
+from gym_multi_robot.envs.foraging_env import ForagingEnv

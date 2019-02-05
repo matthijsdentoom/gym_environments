@@ -12,7 +12,7 @@ class ForagingEnv(MultiRobotEnv):
     a designated area.
     """
 
-    def __init__(self, lattice_size=2, x_dim=7, y_dim=5, seed=None, num_robots=5, env_storage_path=None):
+    def __init__(self, x_dim=7, y_dim=5, num_tiles=2, target_area=(0, 0, 1, 1), seed=None, num_robots=5, env_storage_path=None):
         super().__init__(seed)
 
         if env_storage_path is not None:
@@ -20,4 +20,4 @@ class ForagingEnv(MultiRobotEnv):
             assert isinstance(env_storage, ForagingGameStorage)
             self.game = StaticForagingGame(env_storage)
         else:
-            self.game = ForagingGame((x_dim, y_dim), lattice_size, num_robots)
+            self.game = ForagingGame((x_dim, y_dim), num_tiles, target_area, num_robots)

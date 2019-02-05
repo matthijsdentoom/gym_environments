@@ -55,7 +55,7 @@ class ForagingGame(MultiRobotGame):
         is_west = location[0] >= self.target_area[0] + self.target_area[2]
         return is_north, is_east, is_south, is_west
 
-    def write_config(self, storage_file='tiling_pattern_game.pickle'):
+    def write(self, storage_file='foraging_game.pickle'):
         """ Writes the current configuration of robots and tiles to 2 different files."""
         storage = ForagingGameStorage(self)
         pickle.dump(storage, open(storage_file, 'wb'))
