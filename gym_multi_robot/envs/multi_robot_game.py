@@ -43,7 +43,7 @@ class MultiRobotGame:
 
     def randomly_drop_tile(self):
         while True:
-            rand_loc = (random.randint(0, self.grid_size[0] - 1), random.randint(0, self.grid_size[1] - 1))
+            rand_loc = (random.randrange(0, self.GRID_W), random.randrange(0, self.GRID_H))
             if not self.has_tile(rand_loc):
                 self.grid[rand_loc[0]][rand_loc[1]] = 1
                 break
@@ -51,7 +51,7 @@ class MultiRobotGame:
     def randomly_drop_robot(self, identifier):
         """ This function randomly drops a robot at a non occupied place."""
         while True:     # Return statement breaks the loop.
-            rand_loc = (random.randrange(0, self.grid_size[0]), random.randrange(0, self.grid_size[1]))
+            rand_loc = (random.randrange(0, self.GRID_W), random.randrange(0, self.GRID_H))
 
             if not self.has_robot(rand_loc):
                 rand_heading = Heading.random_heading()
@@ -74,12 +74,7 @@ class MultiRobotGame:
 
     def inside_grid(self, location):
         """ Returns whether the the given locations is within the grid."""
-        if location[0] < 0 or location[1] < 0:
-            return False
-        if location[0] >= len(self.grid) or location[1] >= len(self.grid[0]):
-            return False
-
-        return True
+        return 0 <= location[0] < self.GRID_W and 0 <= location[1] < self.GRID_H
 
     def get_fitness(self):
         """ This function should return the fitness of the current game."""
