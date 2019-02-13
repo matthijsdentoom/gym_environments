@@ -5,6 +5,7 @@ from gym_multi_robot.envs.foraging_game import ForagingGame
 from gym_multi_robot.envs.foraging_robot import ForagingRobot
 from gym_multi_robot.envs.gripping_robot import Heading
 from gym_multi_robot.envs.robot_reset import RandomRobotReset
+from gym_multi_robot.envs.world_reset import RandomWorldReset
 
 
 class TestForagingRobot(unittest.TestCase):
@@ -28,7 +29,7 @@ class TestForagingRobot(unittest.TestCase):
     def test_drop(self):
         robot = ForagingRobot(10, Heading.WEST, (1, 1))
         robot.hold_object = True
-        game = ForagingGame((2, 2), 2, (0, 0, 1, 1), RandomRobotReset(ForagingRobot, 5))
+        game = ForagingGame((2, 2), 2, (0, 0, 1, 1), RandomRobotReset(ForagingRobot, 5), RandomWorldReset())
         game.grid[1][1] = False
         robot.drop(game)
 
@@ -38,7 +39,7 @@ class TestForagingRobot(unittest.TestCase):
     def test_drop_occupied(self):
         robot = ForagingRobot(10, Heading.WEST)
         robot.hold_object = True
-        game = ForagingGame((2, 2), 2, (1, 1, 1, 1), RandomRobotReset(ForagingRobot, 5))
+        game = ForagingGame((2, 2), 2, (1, 1, 1, 1), RandomRobotReset(ForagingRobot, 5), RandomWorldReset())
         game.grid[0][0] = True
         robot.drop(game)
 
@@ -48,7 +49,7 @@ class TestForagingRobot(unittest.TestCase):
     def test_drop_foraging_area(self):
         robot = ForagingRobot(10, Heading.WEST)
         robot.hold_object = True
-        game = ForagingGame((2, 2), 2, (0, 0, 1, 1), RandomRobotReset(ForagingRobot, 5))
+        game = ForagingGame((2, 2), 2, (0, 0, 1, 1), RandomRobotReset(ForagingRobot, 5), RandomWorldReset())
         game.grid[0][0] = False
         self.assertEqual(0, game.get_fitness())
 
@@ -58,7 +59,7 @@ class TestForagingRobot(unittest.TestCase):
 
     def test_empty_observation(self):
         robot = ForagingRobot(10, Heading.NORTH, (5, 5))
-        game = ForagingGame((10, 10), 2, (0, 0, 1, 1), RandomRobotReset(ForagingRobot, 5))
+        game = ForagingGame((10, 10), 2, (0, 0, 1, 1), RandomRobotReset(ForagingRobot, 5), RandomWorldReset())
         game.grid = np.zeros((10, 10))
         observation = robot.get_observation(game)
 

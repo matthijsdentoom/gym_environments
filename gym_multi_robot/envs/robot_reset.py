@@ -9,7 +9,7 @@ class RobotReset:
     def __init__(self, robot_cls):
         self.robot_cls = robot_cls
 
-    def reset(self, robot):
+    def reset(self, game):
         pass
 
     @staticmethod

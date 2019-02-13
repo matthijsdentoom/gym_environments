@@ -1,11 +1,8 @@
 import pickle
-import random
 
 import numpy as np
 
-from gym_multi_robot.envs.foraging_robot import ForagingRobot
 from gym_multi_robot.envs.multi_robot_game import MultiRobotGame
-from gym_multi_robot.envs.robot_reset import StaticRobotReset
 
 
 class ForagingGame(MultiRobotGame):
@@ -13,32 +10,20 @@ class ForagingGame(MultiRobotGame):
     This class represent the foraging game, with as goal bringing as many tiles as possible to the foraging area.
     """
 
-    def __init__(self, grid_size, num_tiles, target_area, robot_reset):
+    def __init__(self, grid_size, num_tiles, target_area, robot_reset, world_reset):
         """ Target Area should be a tuple (x, y, x_length, y_length). """
-        super().__init__(grid_size, robot_reset)
+        super().__init__(grid_size, num_tiles, robot_reset, world_reset)
 
         self.target_area = target_area
-        self.num_tiles = num_tiles
         self.collected = 0
-        self.robot_cls = ForagingRobot
 
     def reset(self):
+        observations = super().reset()
         self.collected = 0
-        self.reset_grid()
-        return self.reset_robots()
+        return observations
 
-    def reset_grid(self):
-        self.grid = np.zeros((self.GRID_W, self.GRID_H), dtype=int)
-
-        for _ in range(self.num_tiles):
-            self.randomly_drop_tile()
-
-    def randomly_drop_tile(self):
-        while True:
-            rand_loc = (random.randint(0, self.grid_size[0] - 1), random.randint(0, self.grid_size[1] - 1))
-            if not self.has_tile(rand_loc) and not self.on_target_area(rand_loc):
-                self.grid[rand_loc[0]][rand_loc[1]] = 1
-                break
+    def valid_initial_drop(self, location):
+        return not self.has_tile(location) and not self.on_target_area(location)
 
     def on_target_area(self, loc):
         """ Returns true if the given position is within the target area of the robot."""
@@ -71,17 +56,3 @@ class ForagingGameStorage:
         self.num_tiles = game.num_tiles
         self.target_area = game.target_area
         self.grid = np.copy(game.grid)
-
-
-class StaticForagingGame(ForagingGame):
-    """ This class represents a static foraging game."""
-
-    def __init__(self, game_storage):
-        assert isinstance(game_storage, ForagingGameStorage)
-        super().__init__(game_storage.grid.shape, game_storage.num_tiles, game_storage.target_area,
-                         StaticRobotReset(ForagingRobot, game_storage.robot_pos))
-        self.default_grid = np.copy(game_storage.grid)
-        self.default_robot_pos = game_storage.robot_pos  # contains a position at index 0 and a heading at index 1
-
-    def reset_grid(self):
-        self.grid = np.copy(self.default_grid)

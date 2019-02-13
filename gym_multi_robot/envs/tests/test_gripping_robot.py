@@ -5,9 +5,18 @@ import numpy as np
 from gym_multi_robot.envs.gripping_robot import Heading, GripperRobot
 from gym_multi_robot.envs.robot_reset import RandomRobotReset
 from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame
+from gym_multi_robot.envs.world_reset import RandomWorldReset
 
 
 class TestGripperRobot(unittest.TestCase):
+
+    @staticmethod
+    def default_game():
+        return TilingPatternGame((2, 2), 2, RandomRobotReset(GripperRobot, 0), RandomWorldReset())
+
+    @staticmethod
+    def default_game10x10():
+        return TilingPatternGame((10, 10), 2, RandomRobotReset(GripperRobot, 0), RandomWorldReset())
 
     def init_robot_test(self):
 
@@ -63,7 +72,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_pickup(self):
         robot = GripperRobot(10, Heading.WEST)
-        game = TilingPatternGame((1, 1), 1, RandomRobotReset(GripperRobot, 0))
+        game = TilingPatternGame((1, 1), 1, RandomRobotReset(GripperRobot, 0), RandomWorldReset())
         game.reset()
         self.assertTrue(game.grid[0][0])
         robot.pickup(game)
@@ -73,7 +82,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_pickup_none(self):
         robot = GripperRobot(10, Heading.WEST, (1, 1))
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         game.grid[1][1] = False
         robot.pickup(game)
 
@@ -83,7 +92,7 @@ class TestGripperRobot(unittest.TestCase):
     def test_drop(self):
         robot = GripperRobot(10, Heading.WEST, (1, 1))
         robot.hold_object = True
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         game.grid[1][1] = False
         robot.drop(game)
 
@@ -93,7 +102,7 @@ class TestGripperRobot(unittest.TestCase):
     def test_drop_occupied(self):
         robot = GripperRobot(10, Heading.WEST)
         robot.hold_object = True
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         game.grid[0][0] = True
         robot.drop(game)
 
@@ -102,63 +111,63 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_move_forward_test(self):
         robot = GripperRobot(10, Heading.EAST)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([True, 0, False, False], game)
 
         self.assertEqual((1, 0), robot.location)
 
     def test_move_forward_test_1(self):
         robot = GripperRobot(10, Heading.SOUTH)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([True, 0, False, False], game)
 
         self.assertEqual((0, 1), robot.location)
 
     def test_move_forward_test_2(self):
         robot = GripperRobot(10, Heading.WEST, (1, 0))
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([True, 0, False, False], game)
 
         self.assertEqual((0, 0), robot.location)
 
     def test_move_forward_test_3(self):
         robot = GripperRobot(10, Heading.NORTH, (0, 1))
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([True, 0, False, False], game)
 
         self.assertEqual((0, 0), robot.location)
 
     def test_move_off_screen_test(self):
         robot = GripperRobot(10, Heading.NORTH)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([True, 0, False, False], game)
 
         self.assertEqual((0, 0), robot.location)
 
     def test_move_off_screen_test_1(self):
         robot = GripperRobot(10, Heading.WEST)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([True, 0, False, False], game)
 
         self.assertEqual((0, 0), robot.location)
 
     def test_move_off_screen_test_2(self):
         robot = GripperRobot(10, Heading.EAST, (1, 0))
-        game = TilingPatternGame((1, 1), 2, 0)
+        game = TilingPatternGame((1, 1), 2, RandomRobotReset(GripperRobot, 0), RandomWorldReset())
         robot.step([True, 0, False, False], game)
 
         self.assertEqual((1, 0), robot.location)
 
     def test_move_off_screen_test_3(self):
         robot = GripperRobot(10, Heading.SOUTH, (1, 1))
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([True, 0, False, False], game)
 
         self.assertEqual((1, 1), robot.location)
 
     def test_pickup_action(self):
         robot = GripperRobot(10, Heading.WEST)
-        game = TilingPatternGame((1, 1), 1, RandomRobotReset(GripperRobot, 0))
+        game = TilingPatternGame((1, 1), 1, RandomRobotReset(GripperRobot, 0), RandomWorldReset())
         game.reset()
         self.assertTrue(game.grid[0][0])
         robot.step([False, 0, True, False], game)
@@ -168,7 +177,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_pickup_none_action(self):
         robot = GripperRobot(10, Heading.WEST, (1, 1))
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         game.grid[1][1] = False
         robot.step([False, 0, True, False], game)
 
@@ -178,7 +187,7 @@ class TestGripperRobot(unittest.TestCase):
     def test_drop_action(self):
         robot = GripperRobot(10, Heading.WEST, (1, 1))
         robot.hold_object = True
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         game.grid[1][1] = False
         robot.step([False, 0, False, True], game)
 
@@ -188,7 +197,7 @@ class TestGripperRobot(unittest.TestCase):
     def test_drop_occupied_action(self):
         robot = GripperRobot(10, Heading.WEST)
         robot.hold_object = True
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         game.grid[0][0] = True
         robot.step([False, 0, False, True], game)
 
@@ -197,61 +206,61 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_rotate_robot_action(self):
         robot = GripperRobot(10, Heading.NORTH)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([False, 1, False, False], game)
         self.assertEqual(Heading.EAST, robot.heading)
 
     def test_rotate_robot_1_action(self):
         robot = GripperRobot(10, Heading.NORTH)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([False, -1, False, False], game)
         self.assertEqual(Heading.WEST, robot.heading)
 
     def test_rotate_robot_2_action(self):
         robot = GripperRobot(10, Heading.NORTH)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([False, 0, False, False], game)
         self.assertEqual(Heading.NORTH, robot.heading)
 
     def test_rotate_robot_3_action(self):
         robot = GripperRobot(10, Heading.EAST)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([False, 1, False, False], game)
         self.assertEqual(Heading.SOUTH, robot.heading)
 
     def test_rotate_robot_4_action(self):
         robot = GripperRobot(10, Heading.EAST)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([False, -1, False, False], game)
         self.assertEqual(Heading.NORTH, robot.heading)
 
     def test_rotate_robot_5_action(self):
         robot = GripperRobot(10, Heading.SOUTH)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([False, 1, False, False], game)
         self.assertEqual(Heading.WEST, robot.heading)
 
     def test_rotate_robot_6_action(self):
         robot = GripperRobot(10, Heading.SOUTH)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([False, -1, False, False], game)
         self.assertEqual(Heading.EAST, robot.heading)
 
     def test_rotate_robot_7_action(self):
         robot = GripperRobot(10, Heading.WEST)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([False, 1, False, False], game)
         self.assertEqual(Heading.NORTH, robot.heading)
 
     def test_rotate_robot_8_action(self):
         robot = GripperRobot(10, Heading.WEST)
-        game = TilingPatternGame((2, 2), 2, 0)
+        game = self.default_game()
         robot.step([False, -1, False, False], game)
         self.assertEqual(Heading.SOUTH, robot.heading)
 
     def test_empty_observation(self):
-        robot = GripperRobot(10, Heading.NORTH, (5,5))
-        game = TilingPatternGame((10, 10), 2, 0)
+        robot = GripperRobot(10, Heading.NORTH, (5, 5))
+        game = self.default_game10x10()
         game.grid = np.zeros((10, 10))
         observation = robot.get_observation(game)
 
@@ -261,7 +270,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_border_observation(self):
         robot = GripperRobot(10, Heading.NORTH, (0, 0))
-        game = TilingPatternGame((10, 10), 2, 0)
+        game = self.default_game10x10()
         game.grid = np.zeros((10, 10))
         observation = robot.get_observation(game)
 
@@ -273,7 +282,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_border_observation_1(self):
         robot = GripperRobot(10, Heading.SOUTH, (0, 9))
-        game = TilingPatternGame((10, 10), 2, 0)
+        game = self.default_game10x10()
         game.grid = np.zeros((10, 10))
         observation = robot.get_observation(game)
 
@@ -285,7 +294,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_border_observation_2(self):
         robot = GripperRobot(10, Heading.WEST, (9, 9))
-        game = TilingPatternGame((10, 10), 2, 0)
+        game = self.default_game10x10()
         game.grid = np.zeros((10, 10))
         observation = robot.get_observation(game)
 
@@ -297,7 +306,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_border_observation_3(self):
         robot = GripperRobot(10, Heading.EAST, (9, 0))
-        game = TilingPatternGame((10, 10), 2, 0)
+        game = self.default_game10x10()
         game.grid = np.zeros((10, 10))
         observation = robot.get_observation(game)
 
@@ -309,7 +318,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_robot_observation_1(self):
         robot = GripperRobot(10, Heading.NORTH, (5, 5))
-        game = TilingPatternGame((10, 10), 2, 0)
+        game = self.default_game10x10()
         game.grid = np.zeros((10, 10))
         game.robots.append(GripperRobot(11, location=(6, 5)))
         observation = robot.get_observation(game)
@@ -320,7 +329,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_robot_observation_2(self):
         robot = GripperRobot(10, Heading.EAST, (5, 5))
-        game = TilingPatternGame((10, 10), 2, 0)
+        game = self.default_game10x10()
         game.grid = np.zeros((10, 10))
         game.robots.append(GripperRobot(11, location=(5, 4)))
         observation = robot.get_observation(game)
@@ -332,7 +341,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_robot_observation_3(self):
         robot = GripperRobot(10, Heading.SOUTH, (5, 5))
-        game = TilingPatternGame((10, 10), 2, 0)
+        game = self.default_game10x10()
         game.grid = np.zeros((10, 10))
         game.robots.append(GripperRobot(11, location=(5, 6)))
         observation = robot.get_observation(game)
@@ -344,7 +353,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_robot_observation_4(self):
         robot = GripperRobot(10, Heading.WEST, (5, 5))
-        game = TilingPatternGame((10, 10), 2, 0)
+        game = self.default_game10x10()
         game.grid = np.zeros((10, 10))
         game.robots.append(GripperRobot(11, location=(4, 4)))
         observation = robot.get_observation(game)
@@ -356,7 +365,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_robot_observation_5(self):
         robot = GripperRobot(10, Heading.NORTH, (5, 5))
-        game = TilingPatternGame((10, 10), 2, 0)
+        game = self.default_game10x10()
         game.grid = np.zeros((10, 10))
         game.robots.append(GripperRobot(11, location=(4, 4)))
         observation = robot.get_observation(game)
@@ -368,7 +377,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_robot_everywhere(self):
         robot = GripperRobot(10, Heading.SOUTH, (5, 5))
-        game = TilingPatternGame((10, 10), 2, 0)
+        game = self.default_game10x10()
         game.grid = np.zeros((10, 10))
         game.robots.append(GripperRobot(11, location=(4, 5)))
         game.robots.append(GripperRobot(12, location=(6, 5)))
@@ -385,7 +394,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_tile_everywhere(self):
         robot = GripperRobot(10, Heading.NORTH, (5, 5))
-        game = TilingPatternGame((10, 10), 2, 0)
+        game = self.default_game10x10()
         game.grid = np.zeros((10, 10))
         game.grid[4][5] = 1
         game.grid[6][5] = 1

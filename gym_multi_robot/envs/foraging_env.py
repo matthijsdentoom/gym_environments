@@ -1,11 +1,8 @@
-import pickle
-
-import numpy as np
-
-from gym_multi_robot.envs.foraging_game import ForagingGame, ForagingGameStorage, StaticForagingGame
+from gym_multi_robot.envs.foraging_game import ForagingGame, ForagingGameStorage
 from gym_multi_robot.envs.foraging_robot import ForagingRobot
-from gym_multi_robot.envs.multi_robot_env import MultiRobotEnv, check_path
-from gym_multi_robot.envs.robot_reset import RandomRobotReset
+from gym_multi_robot.envs.multi_robot_env import MultiRobotEnv
+from gym_multi_robot.envs.robot_reset import RandomRobotReset, StaticRobotReset
+from gym_multi_robot.envs.world_reset import RandomWorldReset, StaticWorldReset
 
 
 class ForagingEnv(MultiRobotEnv):
@@ -21,7 +18,15 @@ class ForagingEnv(MultiRobotEnv):
         if env_storage_path is not None:
             env_storage = self.get_static_storage(env_storage_path)
             assert isinstance(env_storage, ForagingGameStorage)
-            self.game = StaticForagingGame(env_storage)
+
+            world_size = env_storage.grid.shape
+            num_tiles = env_storage.num_tiles
+            target_area = env_storage.target_area
+            robot_reset = StaticRobotReset(ForagingRobot, env_storage.robot_pos)
+            world_reset = StaticWorldReset(env_storage.grid)
         else:
-            self.game = ForagingGame((x_dim, y_dim), num_tiles, target_area,
-                                     RandomRobotReset(ForagingRobot, num_robots))
+            world_size = (x_dim, y_dim)
+            robot_reset = RandomRobotReset(ForagingRobot, num_robots)
+            world_reset = RandomWorldReset()
+
+        self.game = ForagingGame(world_size, num_tiles, target_area, robot_reset, world_reset)

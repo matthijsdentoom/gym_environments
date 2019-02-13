@@ -4,25 +4,21 @@ import numpy as np
 
 from gym_multi_robot.envs.gripping_robot import GripperRobot
 from gym_multi_robot.envs.multi_robot_game import MultiRobotGame
-from gym_multi_robot.envs.robot_reset import StaticRobotReset
 
 
 class TilingPatternGame(MultiRobotGame):
     """ This class represents a grid used for the tiling pattern problem."""
 
-    def __init__(self, grid_size, lattice_size, robot_reset):
-        super().__init__(grid_size, robot_reset)
+    def __init__(self, grid_size, lattice_size, robot_reset, world_reset):
+        super().__init__(grid_size, self.get_num_tiles(grid_size, lattice_size), robot_reset, world_reset)
 
         self.lattice_size = lattice_size
-        self.num_tiles = int(math.ceil(self.GRID_W / self.lattice_size) * math.ceil(self.GRID_H / self.lattice_size))
         self.robot_cls = GripperRobot
 
-    def reset_grid(self):
+    @staticmethod
+    def get_num_tiles(grid_size, lattice_size):
 
-        self.grid = np.zeros((self.GRID_W, self.GRID_H), dtype=int)
-
-        for _ in range(self.num_tiles):
-            self.randomly_drop_tile()
+        return int(math.ceil(grid_size[0] / lattice_size) * math.ceil(grid_size[1] / lattice_size))
 
     def get_fitness(self):
         """ This function gets the fitness the current tile construction.
@@ -32,7 +28,7 @@ class TilingPatternGame(MultiRobotGame):
         s = -100
         p_js = []
 
-        for i in range(0, len(self.grid) - 1, self.lattice_size): # -1 to not take into account the last block.
+        for i in range(0, len(self.grid) - 1, self.lattice_size):  # -1 to not take into account the last block.
             for j in range(0, len(self.grid[0]) - 1, self.lattice_size):
 
                 sub_grid = self.grid[i:i + self.lattice_size + 1, j:j + self.lattice_size + 1]
@@ -65,19 +61,3 @@ class TilingPatternGameStorage:
         self.robot_pos = [(robot.location, robot.heading) for robot in game.robots]
         self.lattice_size = game.lattice_size
         self.grid = np.copy(game.grid)
-
-
-class StaticTilingPatternGame(TilingPatternGame):
-    """ This is a variant of the tiling pattern game, but now the grid is static, meaning the tiles and robots are
-    at the same locations every time.
-    """
-
-    def __init__(self, game_storage):
-        assert isinstance(game_storage, TilingPatternGameStorage)
-        super().__init__(game_storage.grid.shape, game_storage.lattice_size,
-                         StaticRobotReset(GripperRobot, game_storage.robot_pos))
-        self.default_grid = np.copy(game_storage.grid)
-        self.default_robot_pos = game_storage.robot_pos  # contains a position at index 0 and a heading at index 1
-
-    def reset_grid(self):
-        self.grid = np.copy(self.default_grid)

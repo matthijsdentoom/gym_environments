@@ -1,6 +1,8 @@
-from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame, StaticTilingPatternGame, \
-    TilingPatternGameStorage
+from gym_multi_robot.envs.gripping_robot import GripperRobot
+from gym_multi_robot.envs.robot_reset import RandomRobotReset, StaticRobotReset
+from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame, TilingPatternGameStorage
 from gym_multi_robot.envs.multi_robot_env import MultiRobotEnv
+from gym_multi_robot.envs.world_reset import RandomWorldReset, StaticWorldReset
 
 
 class TilingPatternEnv(MultiRobotEnv):
@@ -18,6 +20,14 @@ class TilingPatternEnv(MultiRobotEnv):
         if env_storage_path is not None:
             env_storage = self.get_static_storage(env_storage_path)
             assert isinstance(env_storage, TilingPatternGameStorage)
-            self.game = StaticTilingPatternGame(env_storage)
+
+            robot_reset = StaticRobotReset(GripperRobot, env_storage.robot_pos)
+            world_reset = StaticWorldReset(env_storage.grid)
+            world_size = env_storage.grid.shape
+            lattice_size = env_storage.lattice_size
         else:
-            self.game = TilingPatternGame((x_dim, y_dim), lattice_size, num_robots)
+            robot_reset = RandomRobotReset(GripperRobot, num_robots)
+            world_reset = RandomWorldReset()
+            world_size = (x_dim, y_dim)
+
+        self.game = TilingPatternGame(world_size, lattice_size, robot_reset, world_reset)
