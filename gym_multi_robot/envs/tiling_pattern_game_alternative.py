@@ -1,5 +1,6 @@
 from gym_multi_robot.envs import TilingPatternEnv
 from gym_multi_robot.envs.gripping_robot import GripperRobot
+from gym_multi_robot.envs.multi_robot_env import MultiRobotEnv
 from gym_multi_robot.envs.robot_reset import StaticRobotReset, RandomRobotReset
 from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame, TilingPatternGameStorage
 from gym_multi_robot.envs.world_reset import StaticWorldReset, RandomWorldReset
@@ -17,7 +18,7 @@ class CountTilingPatternGame(TilingPatternGame):
         return fitness
 
 
-class CountTilingPatternEnv(TilingPatternEnv):
+class CountTilingPatternEnv(MultiRobotEnv):
 
     def __init__(self, lattice_size=2, x_dim=7, y_dim=5, seed=None, num_robots=5, env_storage_path=None):
         super().__init__(seed)
