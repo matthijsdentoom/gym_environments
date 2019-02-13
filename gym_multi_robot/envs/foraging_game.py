@@ -5,6 +5,7 @@ import numpy as np
 
 from gym_multi_robot.envs.foraging_robot import ForagingRobot
 from gym_multi_robot.envs.multi_robot_game import MultiRobotGame
+from gym_multi_robot.envs.robot_reset import StaticRobotReset
 
 
 class ForagingGame(MultiRobotGame):
@@ -12,9 +13,9 @@ class ForagingGame(MultiRobotGame):
     This class represent the foraging game, with as goal bringing as many tiles as possible to the foraging area.
     """
 
-    def __init__(self, grid_size, num_tiles, target_area, num_robots=5):
+    def __init__(self, grid_size, num_tiles, target_area, robot_reset):
         """ Target Area should be a tuple (x, y, x_length, y_length). """
-        super().__init__(grid_size, num_robots)
+        super().__init__(grid_size, robot_reset)
 
         self.target_area = target_area
         self.num_tiles = num_tiles
@@ -78,15 +79,9 @@ class StaticForagingGame(ForagingGame):
     def __init__(self, game_storage):
         assert isinstance(game_storage, ForagingGameStorage)
         super().__init__(game_storage.grid.shape, game_storage.num_tiles, game_storage.target_area,
-                         len(game_storage.robot_pos))
+                         StaticRobotReset(ForagingRobot, game_storage.robot_pos))
         self.default_grid = np.copy(game_storage.grid)
         self.default_robot_pos = game_storage.robot_pos  # contains a position at index 0 and a heading at index 1
 
     def reset_grid(self):
         self.grid = np.copy(self.default_grid)
-
-    def reset_robots(self):
-        self.robots = [ForagingRobot(i, self.default_robot_pos[i][1], self.default_robot_pos[i][0])
-                       for i in range(len(self.default_robot_pos))]
-
-        return [robot.get_observation(self) for robot in self.robots]

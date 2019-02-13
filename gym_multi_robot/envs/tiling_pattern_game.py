@@ -4,13 +4,14 @@ import numpy as np
 
 from gym_multi_robot.envs.gripping_robot import GripperRobot
 from gym_multi_robot.envs.multi_robot_game import MultiRobotGame
+from gym_multi_robot.envs.robot_reset import StaticRobotReset
 
 
 class TilingPatternGame(MultiRobotGame):
     """ This class represents a grid used for the tiling pattern problem."""
 
-    def __init__(self, grid_size, lattice_size, num_robots=5):
-        super().__init__(grid_size, num_robots)
+    def __init__(self, grid_size, lattice_size, robot_reset):
+        super().__init__(grid_size, robot_reset)
 
         self.lattice_size = lattice_size
         self.num_tiles = int(math.ceil(self.GRID_W / self.lattice_size) * math.ceil(self.GRID_H / self.lattice_size))
@@ -73,15 +74,10 @@ class StaticTilingPatternGame(TilingPatternGame):
 
     def __init__(self, game_storage):
         assert isinstance(game_storage, TilingPatternGameStorage)
-        super().__init__(game_storage.grid.shape, game_storage.lattice_size, len(game_storage.robot_pos))
+        super().__init__(game_storage.grid.shape, game_storage.lattice_size,
+                         StaticRobotReset(GripperRobot, game_storage.robot_pos))
         self.default_grid = np.copy(game_storage.grid)
         self.default_robot_pos = game_storage.robot_pos  # contains a position at index 0 and a heading at index 1
 
     def reset_grid(self):
         self.grid = np.copy(self.default_grid)
-
-    def reset_robots(self):
-        self.robots = [GripperRobot(i, self.default_robot_pos[i][1], self.default_robot_pos[i][0])
-                       for i in range(len(self.default_robot_pos))]
-
-        return [robot.get_observation(self) for robot in self.robots]

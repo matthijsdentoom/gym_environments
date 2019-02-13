@@ -3,6 +3,7 @@ import unittest
 import numpy as np
 
 from gym_multi_robot.envs.gripping_robot import Heading, GripperRobot
+from gym_multi_robot.envs.robot_reset import RandomRobotReset
 from gym_multi_robot.envs.tiling_pattern_game import TilingPatternGame
 
 
@@ -62,7 +63,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_pickup(self):
         robot = GripperRobot(10, Heading.WEST)
-        game = TilingPatternGame((1, 1), 1, 0)
+        game = TilingPatternGame((1, 1), 1, RandomRobotReset(GripperRobot, 0))
         game.reset()
         self.assertTrue(game.grid[0][0])
         robot.pickup(game)
@@ -157,7 +158,7 @@ class TestGripperRobot(unittest.TestCase):
 
     def test_pickup_action(self):
         robot = GripperRobot(10, Heading.WEST)
-        game = TilingPatternGame((1, 1), 1, 0)
+        game = TilingPatternGame((1, 1), 1, RandomRobotReset(GripperRobot, 0))
         game.reset()
         self.assertTrue(game.grid[0][0])
         robot.step([False, 0, True, False], game)

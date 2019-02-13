@@ -8,11 +8,11 @@ from gym_multi_robot.envs.gripping_robot import Heading
 class MultiRobotGame:
     """ This class defines a multi-robot game in a grid world."""
 
-    def __init__(self, grid_size, num_robots):
+    def __init__(self, grid_size, robot_reset):
         self.grid_size = grid_size
         self.grid = np.zeros((self.GRID_W, self.GRID_H), dtype=int)
+        self.robot_reset = robot_reset
 
-        self.num_robots = num_robots
         self.robots = []
         self.done = False
         self.robot_cls = None   # This variable should set the robot that is used.
@@ -33,13 +33,11 @@ class MultiRobotGame:
     def reset_robots(self):
         """ The method creates new robots at random positions."""
 
-        self.robots.clear()
-        for i in range(self.num_robots):
-            self.robots.append(self.randomly_drop_robot(i))
+        self.robot_reset.reset(self)
+        return [robot.get_observation(self) for robot in self.robots]
 
-        observations = [robot.get_observation(self) for robot in self.robots]
-
-        return observations
+    def add_robot(self, robot):
+        self.robots.append(robot)
 
     def randomly_drop_tile(self):
         while True:
@@ -47,15 +45,6 @@ class MultiRobotGame:
             if not self.has_tile(rand_loc):
                 self.grid[rand_loc[0]][rand_loc[1]] = 1
                 break
-
-    def randomly_drop_robot(self, identifier):
-        """ This function randomly drops a robot at a non occupied place."""
-        while True:     # Return statement breaks the loop.
-            rand_loc = (random.randrange(0, self.GRID_W), random.randrange(0, self.GRID_H))
-
-            if not self.has_robot(rand_loc):
-                rand_heading = Heading.random_heading()
-                return self.robot_cls(identifier, location=rand_loc, heading=rand_heading)
 
     def has_tile(self, location):
         """ Returns true if the location has a grid."""

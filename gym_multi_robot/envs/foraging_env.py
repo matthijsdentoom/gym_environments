@@ -3,7 +3,9 @@ import pickle
 import numpy as np
 
 from gym_multi_robot.envs.foraging_game import ForagingGame, ForagingGameStorage, StaticForagingGame
+from gym_multi_robot.envs.foraging_robot import ForagingRobot
 from gym_multi_robot.envs.multi_robot_env import MultiRobotEnv, check_path
+from gym_multi_robot.envs.robot_reset import RandomRobotReset
 
 
 class ForagingEnv(MultiRobotEnv):
@@ -12,7 +14,8 @@ class ForagingEnv(MultiRobotEnv):
     a designated area.
     """
 
-    def __init__(self, x_dim=7, y_dim=5, num_tiles=2, target_area=(0, 0, 1, 1), seed=None, num_robots=5, env_storage_path=None):
+    def __init__(self, x_dim=7, y_dim=5, num_tiles=2, target_area=(0, 0, 1, 1), seed=None, num_robots=5,
+                 env_storage_path=None):
         super().__init__(seed)
 
         if env_storage_path is not None:
@@ -20,4 +23,5 @@ class ForagingEnv(MultiRobotEnv):
             assert isinstance(env_storage, ForagingGameStorage)
             self.game = StaticForagingGame(env_storage)
         else:
-            self.game = ForagingGame((x_dim, y_dim), num_tiles, target_area, num_robots)
+            self.game = ForagingGame((x_dim, y_dim), num_tiles, target_area,
+                                     RandomRobotReset(ForagingRobot, num_robots))
