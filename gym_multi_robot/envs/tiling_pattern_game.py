@@ -35,7 +35,6 @@ class TilingPatternGame(MultiRobotGame):
                 count = np.sum(np.sum(sub_grid))
                 p_js.append(count)
 
-
         # Alternative fitness calculation, difference from 4 per square.
         p_js = np.array(p_js)
         difference = sum(abs(p_js - 4))

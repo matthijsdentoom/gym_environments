@@ -3,7 +3,7 @@ import gym_multi_robot
 
 
 if __name__ == '__main__':
-    env = gym.make('tiling-pattern-v0')
+    env = gym.make('tiling-pattern11x11-block-alt-v0')
     env.render()
 
     input('Turn right')

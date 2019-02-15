@@ -37,3 +37,16 @@ class CountTilingPatternEnv(MultiRobotEnv):
             world_size = (x_dim, y_dim)
 
         self.game = CountTilingPatternGame(world_size, lattice_size, robot_reset, world_reset)
+
+
+class SummedTilingPatternGame(TilingPatternEnv):
+    """ This function returns a fitness at every time step. """
+
+    def step(self, actions):
+
+        observation = self.game.update_robots(actions)
+        reward = self.game.get_fitness()
+        done = self.game.game_over
+        info = dict()
+
+        return observation, reward, done, info
