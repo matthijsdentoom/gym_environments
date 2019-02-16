@@ -12,7 +12,7 @@ class ForagingEnv(MultiRobotEnv):
     """
 
     def __init__(self, x_dim=7, y_dim=5, num_tiles=2, target_area=(0, 0, 1, 1), seed=None, num_robots=5,
-                 env_storage_path=None):
+                 env_storage_path=None, game_cls=ForagingGame):
         super().__init__(seed)
 
         if env_storage_path is not None:
@@ -29,4 +29,4 @@ class ForagingEnv(MultiRobotEnv):
             robot_reset = RandomRobotReset(ForagingRobot, num_robots)
             world_reset = RandomWorldReset()
 
-        self.game = ForagingGame(world_size, num_tiles, target_area, robot_reset, world_reset)
+        self.game = game_cls(world_size, num_tiles, target_area, robot_reset, world_reset)

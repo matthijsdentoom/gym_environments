@@ -24,7 +24,7 @@ class DifferenceTilingPatternGame(TilingPatternGame):
     It takes the difference of each lattice block from having 4 tiles (the required number).
     """
 
-    def get_difference_fitness(self):
+    def get_fitness(self):
         """ This function returns the difference by taking the difference from the ideal field."""
         p_js = []
 
