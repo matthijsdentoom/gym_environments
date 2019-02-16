@@ -35,19 +35,14 @@ class TilingPatternGame(MultiRobotGame):
                 count = np.sum(np.sum(sub_grid))
                 p_js.append(count)
 
-        # Alternative fitness calculation, difference from 4 per square.
-        p_js = np.array(p_js)
-        difference = sum(abs(p_js - 4))
-        f = len(p_js) - difference
+        summed_p_j = sum(p_js)
+        f = 0
+        for p in p_js:
+                p /= summed_p_j         # Divide by sum of all elements.
+                if p != 0:
+                    f += p * math.log(p)    # Calculate entropy.
 
-        # summed_p_j = sum(p_js)
-        # f = 0
-        # for p in p_js:
-        #         p /= summed_p_j         # Divide by sum of all elements.
-        #         if p != 0:
-        #             f += p * math.log(p)    # Calculate entropy.
-        #
-        # f *= s / math.log(len(p_js))
+        f *= s / math.log(len(p_js))
         # TODO: possibly count tiles that robot holds.
 
         return f

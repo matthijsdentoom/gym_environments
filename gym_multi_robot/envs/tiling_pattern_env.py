@@ -14,7 +14,8 @@ class TilingPatternEnv(MultiRobotEnv):
     Then the fitness can be requested using env.get_fitness()
     """
 
-    def __init__(self, lattice_size=2, x_dim=7, y_dim=5, seed=None, num_robots=5, env_storage_path=None):
+    def __init__(self, lattice_size=2, x_dim=7, y_dim=5, seed=None, num_robots=5, env_storage_path=None,
+                 game_cls=TilingPatternGame):
         super().__init__(seed)
 
         if env_storage_path is not None:
@@ -30,4 +31,4 @@ class TilingPatternEnv(MultiRobotEnv):
             world_reset = RandomWorldReset()
             world_size = (x_dim, y_dim)
 
-        self.game = TilingPatternGame(world_size, lattice_size, robot_reset, world_reset)
+        self.game = game_cls(world_size, lattice_size, robot_reset, world_reset)

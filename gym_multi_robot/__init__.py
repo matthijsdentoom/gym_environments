@@ -1,5 +1,7 @@
 from gym.envs.registration import register
 
+from gym_multi_robot.envs.tiling_pattern_game_alternative import CountTilingPatternGame
+
 register(
     id='tiling-pattern-v0',
     entry_point='gym_multi_robot.envs:TilingPatternEnv',
@@ -30,11 +32,10 @@ register(
     kwargs={'env_storage_path': 'tiles11x11_block.pickle'}
 )
 
-# This environment has all the tiles distributed in a 6x6 block giving a fitness of 67.24
 register(
     id='tiling-pattern11x11-block-alt-v0',
-    entry_point='gym_multi_robot.envs:CountTilingPatternEnv',
-    kwargs={'env_storage_path': 'tiles11x11_block.pickle'}
+    entry_point='gym_multi_robot.envs:TilingPatternEnv',
+    kwargs={'env_storage_path': 'tiles11x11_block.pickle', 'game_cls': CountTilingPatternGame}
 )
 
 register(
