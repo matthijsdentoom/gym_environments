@@ -14,8 +14,8 @@ class ClosestGame(ForagingGame):
         fitness = self.collected
 
         max_distance = math.sqrt(math.pow(self.GRID_W, 2) + math.pow(self.GRID_H, 2))
-        for i in range(0, len(self.GRID_W)):  # -1 to not take into account the last block.
-            for j in range(0, len(self.GRID_H)):
+        for i in range(self.GRID_W):  # -1 to not take into account the last block.
+            for j in range(self.GRID_H):
                 if self.grid[i][j]:
                     distance = math.sqrt(math.pow(i - self.target_area[0], 2) + math.pow(j - self.target_area[1], 2))
                     fitness += 1 - distance / max_distance
@@ -26,9 +26,9 @@ class ClosestGame(ForagingGame):
 class SteppedForagingEnv(ForagingEnv):
     """ Child classes of this class should set summed_reward in update function which can be returned by get_fitness."""
 
-    def __init__(self, lattice_size=2, x_dim=7, y_dim=5, seed=None, num_robots=5, env_storage_path=None,
+    def __init__(self, lattice_size=2, x_dim=7, y_dim=5, target_area=(0, 0, 1, 1), seed=None, num_robots=5, env_storage_path=None,
                  game_cls=ForagingEnv):
-        super().__init__(lattice_size, x_dim, y_dim, seed, num_robots, env_storage_path, game_cls)
+        super().__init__(lattice_size, x_dim, y_dim, target_area, seed, num_robots, env_storage_path, game_cls)
 
         self.summed_reward = 0
 
@@ -43,9 +43,9 @@ class SteppedForagingEnv(ForagingEnv):
 class WeightedSumForagingEnv(SteppedForagingEnv):
     """ This class calculates the fitness by getting a weighted sum over all timesteps. (weight increases with step) """
 
-    def __init__(self, lattice_size=2, x_dim=7, y_dim=5, seed=None, num_robots=5, env_storage_path=None,
+    def __init__(self, lattice_size=2, x_dim=7, y_dim=5, target_area=(0, 0, 1, 1), seed=None, num_robots=5, env_storage_path=None,
                  game_cls=ForagingGame):
-        super().__init__(lattice_size, x_dim, y_dim, seed, num_robots, env_storage_path, game_cls)
+        super().__init__(lattice_size, x_dim, y_dim, target_area, seed, num_robots, env_storage_path, game_cls)
 
         self.step_nr = 0
 
